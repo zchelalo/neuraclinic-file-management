@@ -1,0 +1,64 @@
+package grpcserver
+
+import (
+	"crypto/tls"
+	"fmt"
+	"net"
+
+	filemanagementv1 "github.com/zchelalo/neuraclinic-file-management/gen/go/file_management/v1"
+	filesgrpc "github.com/zchelalo/neuraclinic-file-management/internal/modules/files/adapters/grpc"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+)
+
+type Config struct {
+	Port            int
+	ServiceName     string
+	TLSCertFilePath string
+	TLSKeyFilePath  string
+}
+
+type Server struct {
+	grpcServer *grpc.Server
+	listener   net.Listener
+}
+
+func New(cfg Config, logger *zap.Logger, appServices *filesgrpc.Services) (*Server, error) {
+	cert, err := tls.LoadX509KeyPair(cfg.TLSCertFilePath, cfg.TLSKeyFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("load grpc tls key pair: %w", err)
+	}
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", cfg.Port))
+	if err != nil {
+		return nil, fmt.Errorf("listen: %w", err)
+	}
+
+	grpcServer := grpc.NewServer(
+		grpc.Creds(credentials.NewTLS(&tls.Config{
+			MinVersion:   tls.VersionTLS12,
+			Certificates: []tls.Certificate{cert},
+		})),
+		grpc.UnaryInterceptor(UnaryInterceptor(logger, cfg.ServiceName)),
+	)
+
+	filemanagementv1.RegisterFileManagementServiceServer(grpcServer, appServices.FileManagement)
+
+	return &Server{
+		grpcServer: grpcServer,
+		listener:   listener,
+	}, nil
+}
+
+func (s *Server) Start() error {
+	return s.grpcServer.Serve(s.listener)
+}
+
+func (s *Server) GracefulStop() {
+	s.grpcServer.GracefulStop()
+}
+
+func (s *Server) Stop() {
+	s.grpcServer.Stop()
+}

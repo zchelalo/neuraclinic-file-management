@@ -1,0 +1,11 @@
+aws_region  = "us-east-1"
+project     = "neuraclinic"
+environment = "dev"
+
+bucket_name = "neuraclinic-dev-files"
+
+cors_allowed_origins = [
+  "http://localhost:5173",
+]
+
+force_destroy = false
