@@ -16,7 +16,7 @@ UPDATE files
 SET
   status = $2,
   uploaded_at = CASE
-    WHEN $2 = 'FILE_STATUS_AVAILABLE' THEN $3
+    WHEN $2::varchar = 'FILE_STATUS_AVAILABLE'::varchar THEN $3
     ELSE uploaded_at
   END,
   updated_at = $3

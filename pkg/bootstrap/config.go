@@ -30,6 +30,9 @@ type Config struct {
 	GRPCTLSCertPath string
 	GRPCTLSKeyPath  string
 
+	RabbitMQURL      string
+	RabbitMQExchange string
+
 	StorageProvider        string
 	StorageBucket          string
 	StorageRegion          string
@@ -59,6 +62,8 @@ func LoadConfig(dotenvPath string) (Config, error) {
 		DBSSLMode:              getEnv("DB_SSLMODE", "disable"),
 		GRPCTLSCertPath:        getEnv("GRPC_TLS_CERT_PATH", ""),
 		GRPCTLSKeyPath:         getEnv("GRPC_TLS_KEY_PATH", ""),
+		RabbitMQURL:            getEnv("RABBITMQ_URL", ""),
+		RabbitMQExchange:       getEnv("RABBITMQ_EXCHANGE", "neuraclinic.events"),
 		StorageProvider:        getEnv("STORAGE_PROVIDER", "s3"),
 		StorageBucket:          getEnv("STORAGE_BUCKET", ""),
 		StorageRegion:          getEnv("STORAGE_REGION", "us-east-1"),
@@ -99,6 +104,7 @@ func (c Config) Validate() error {
 		"DB_NAME":            c.DBName,
 		"GRPC_TLS_CERT_PATH": c.GRPCTLSCertPath,
 		"GRPC_TLS_KEY_PATH":  c.GRPCTLSKeyPath,
+		"RABBITMQ_URL":       c.RabbitMQURL,
 		"STORAGE_BUCKET":     c.StorageBucket,
 	}
 

@@ -171,6 +171,98 @@ func (x *File) GetDeletedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type FileStatusChangedEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EventId       string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	FileId        string                 `protobuf:"bytes,2,opt,name=file_id,json=fileId,proto3" json:"file_id,omitempty"`
+	ServiceOrigin string                 `protobuf:"bytes,3,opt,name=service_origin,json=serviceOrigin,proto3" json:"service_origin,omitempty"`
+	Status        v1.FileStatus          `protobuf:"varint,4,opt,name=status,proto3,enum=shared.v1.FileStatus" json:"status,omitempty"`
+	OccurredAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
+	RequestId     string                 `protobuf:"bytes,6,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	TraceId       string                 `protobuf:"bytes,7,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FileStatusChangedEvent) Reset() {
+	*x = FileStatusChangedEvent{}
+	mi := &file_file_management_v1_file_management_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FileStatusChangedEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileStatusChangedEvent) ProtoMessage() {}
+
+func (x *FileStatusChangedEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_file_management_v1_file_management_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileStatusChangedEvent.ProtoReflect.Descriptor instead.
+func (*FileStatusChangedEvent) Descriptor() ([]byte, []int) {
+	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *FileStatusChangedEvent) GetEventId() string {
+	if x != nil {
+		return x.EventId
+	}
+	return ""
+}
+
+func (x *FileStatusChangedEvent) GetFileId() string {
+	if x != nil {
+		return x.FileId
+	}
+	return ""
+}
+
+func (x *FileStatusChangedEvent) GetServiceOrigin() string {
+	if x != nil {
+		return x.ServiceOrigin
+	}
+	return ""
+}
+
+func (x *FileStatusChangedEvent) GetStatus() v1.FileStatus {
+	if x != nil {
+		return x.Status
+	}
+	return v1.FileStatus(0)
+}
+
+func (x *FileStatusChangedEvent) GetOccurredAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.OccurredAt
+	}
+	return nil
+}
+
+func (x *FileStatusChangedEvent) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *FileStatusChangedEvent) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
 type FileManagementServiceRequestUploadRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OriginalName  string                 `protobuf:"bytes,1,opt,name=original_name,json=originalName,proto3" json:"original_name,omitempty"`
@@ -184,7 +276,7 @@ type FileManagementServiceRequestUploadRequest struct {
 
 func (x *FileManagementServiceRequestUploadRequest) Reset() {
 	*x = FileManagementServiceRequestUploadRequest{}
-	mi := &file_file_management_v1_file_management_proto_msgTypes[1]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -196,7 +288,7 @@ func (x *FileManagementServiceRequestUploadRequest) String() string {
 func (*FileManagementServiceRequestUploadRequest) ProtoMessage() {}
 
 func (x *FileManagementServiceRequestUploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_file_management_v1_file_management_proto_msgTypes[1]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -209,7 +301,7 @@ func (x *FileManagementServiceRequestUploadRequest) ProtoReflect() protoreflect.
 
 // Deprecated: Use FileManagementServiceRequestUploadRequest.ProtoReflect.Descriptor instead.
 func (*FileManagementServiceRequestUploadRequest) Descriptor() ([]byte, []int) {
-	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{1}
+	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *FileManagementServiceRequestUploadRequest) GetOriginalName() string {
@@ -258,7 +350,7 @@ type FileManagementServiceRequestUploadResponse struct {
 
 func (x *FileManagementServiceRequestUploadResponse) Reset() {
 	*x = FileManagementServiceRequestUploadResponse{}
-	mi := &file_file_management_v1_file_management_proto_msgTypes[2]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -270,7 +362,7 @@ func (x *FileManagementServiceRequestUploadResponse) String() string {
 func (*FileManagementServiceRequestUploadResponse) ProtoMessage() {}
 
 func (x *FileManagementServiceRequestUploadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_file_management_v1_file_management_proto_msgTypes[2]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -283,7 +375,7 @@ func (x *FileManagementServiceRequestUploadResponse) ProtoReflect() protoreflect
 
 // Deprecated: Use FileManagementServiceRequestUploadResponse.ProtoReflect.Descriptor instead.
 func (*FileManagementServiceRequestUploadResponse) Descriptor() ([]byte, []int) {
-	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{2}
+	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *FileManagementServiceRequestUploadResponse) GetId() string {
@@ -317,7 +409,7 @@ type FileManagementServiceConfirmUploadRequest struct {
 
 func (x *FileManagementServiceConfirmUploadRequest) Reset() {
 	*x = FileManagementServiceConfirmUploadRequest{}
-	mi := &file_file_management_v1_file_management_proto_msgTypes[3]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -329,7 +421,7 @@ func (x *FileManagementServiceConfirmUploadRequest) String() string {
 func (*FileManagementServiceConfirmUploadRequest) ProtoMessage() {}
 
 func (x *FileManagementServiceConfirmUploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_file_management_v1_file_management_proto_msgTypes[3]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -342,7 +434,7 @@ func (x *FileManagementServiceConfirmUploadRequest) ProtoReflect() protoreflect.
 
 // Deprecated: Use FileManagementServiceConfirmUploadRequest.ProtoReflect.Descriptor instead.
 func (*FileManagementServiceConfirmUploadRequest) Descriptor() ([]byte, []int) {
-	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{3}
+	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *FileManagementServiceConfirmUploadRequest) GetId() string {
@@ -371,7 +463,7 @@ type FileManagementServiceConfirmUploadResponse struct {
 
 func (x *FileManagementServiceConfirmUploadResponse) Reset() {
 	*x = FileManagementServiceConfirmUploadResponse{}
-	mi := &file_file_management_v1_file_management_proto_msgTypes[4]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -383,7 +475,7 @@ func (x *FileManagementServiceConfirmUploadResponse) String() string {
 func (*FileManagementServiceConfirmUploadResponse) ProtoMessage() {}
 
 func (x *FileManagementServiceConfirmUploadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_file_management_v1_file_management_proto_msgTypes[4]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -396,7 +488,7 @@ func (x *FileManagementServiceConfirmUploadResponse) ProtoReflect() protoreflect
 
 // Deprecated: Use FileManagementServiceConfirmUploadResponse.ProtoReflect.Descriptor instead.
 func (*FileManagementServiceConfirmUploadResponse) Descriptor() ([]byte, []int) {
-	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{4}
+	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *FileManagementServiceConfirmUploadResponse) GetId() string {
@@ -436,7 +528,7 @@ type FileManagementServiceGenerateDownloadUrlRequest struct {
 
 func (x *FileManagementServiceGenerateDownloadUrlRequest) Reset() {
 	*x = FileManagementServiceGenerateDownloadUrlRequest{}
-	mi := &file_file_management_v1_file_management_proto_msgTypes[5]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -448,7 +540,7 @@ func (x *FileManagementServiceGenerateDownloadUrlRequest) String() string {
 func (*FileManagementServiceGenerateDownloadUrlRequest) ProtoMessage() {}
 
 func (x *FileManagementServiceGenerateDownloadUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_file_management_v1_file_management_proto_msgTypes[5]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -461,7 +553,7 @@ func (x *FileManagementServiceGenerateDownloadUrlRequest) ProtoReflect() protore
 
 // Deprecated: Use FileManagementServiceGenerateDownloadUrlRequest.ProtoReflect.Descriptor instead.
 func (*FileManagementServiceGenerateDownloadUrlRequest) Descriptor() ([]byte, []int) {
-	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{5}
+	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *FileManagementServiceGenerateDownloadUrlRequest) GetId() string {
@@ -481,7 +573,7 @@ type FileManagementServiceGenerateDownloadUrlResponse struct {
 
 func (x *FileManagementServiceGenerateDownloadUrlResponse) Reset() {
 	*x = FileManagementServiceGenerateDownloadUrlResponse{}
-	mi := &file_file_management_v1_file_management_proto_msgTypes[6]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -493,7 +585,7 @@ func (x *FileManagementServiceGenerateDownloadUrlResponse) String() string {
 func (*FileManagementServiceGenerateDownloadUrlResponse) ProtoMessage() {}
 
 func (x *FileManagementServiceGenerateDownloadUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_file_management_v1_file_management_proto_msgTypes[6]
+	mi := &file_file_management_v1_file_management_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,7 +598,7 @@ func (x *FileManagementServiceGenerateDownloadUrlResponse) ProtoReflect() protor
 
 // Deprecated: Use FileManagementServiceGenerateDownloadUrlResponse.ProtoReflect.Descriptor instead.
 func (*FileManagementServiceGenerateDownloadUrlResponse) Descriptor() ([]byte, []int) {
-	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{6}
+	return file_file_management_v1_file_management_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *FileManagementServiceGenerateDownloadUrlResponse) GetDownloadUrl() string {
@@ -549,7 +641,17 @@ const file_file_management_v1_file_management_proto_rawDesc = "" +
 	"uploadedAt\x12>\n" +
 	"\n" +
 	"deleted_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tdeletedAt\x88\x01\x01B\r\n" +
-	"\v_deleted_at\"\xd0\x01\n" +
+	"\v_deleted_at\"\x99\x02\n" +
+	"\x16FileStatusChangedEvent\x12\x19\n" +
+	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x17\n" +
+	"\afile_id\x18\x02 \x01(\tR\x06fileId\x12%\n" +
+	"\x0eservice_origin\x18\x03 \x01(\tR\rserviceOrigin\x12-\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x15.shared.v1.FileStatusR\x06status\x12;\n" +
+	"\voccurred_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"occurredAt\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x06 \x01(\tR\trequestId\x12\x19\n" +
+	"\btrace_id\x18\a \x01(\tR\atraceId\"\xd0\x01\n" +
 	")FileManagementServiceRequestUploadRequest\x12#\n" +
 	"\roriginal_name\x18\x01 \x01(\tR\foriginalName\x12\x1b\n" +
 	"\tmime_type\x18\x02 \x01(\tR\bmimeType\x12\x1d\n" +
@@ -598,39 +700,42 @@ func file_file_management_v1_file_management_proto_rawDescGZIP() []byte {
 	return file_file_management_v1_file_management_proto_rawDescData
 }
 
-var file_file_management_v1_file_management_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_file_management_v1_file_management_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_file_management_v1_file_management_proto_goTypes = []any{
-	(*File)(nil), // 0: file_management.v1.File
-	(*FileManagementServiceRequestUploadRequest)(nil),        // 1: file_management.v1.FileManagementServiceRequestUploadRequest
-	(*FileManagementServiceRequestUploadResponse)(nil),       // 2: file_management.v1.FileManagementServiceRequestUploadResponse
-	(*FileManagementServiceConfirmUploadRequest)(nil),        // 3: file_management.v1.FileManagementServiceConfirmUploadRequest
-	(*FileManagementServiceConfirmUploadResponse)(nil),       // 4: file_management.v1.FileManagementServiceConfirmUploadResponse
-	(*FileManagementServiceGenerateDownloadUrlRequest)(nil),  // 5: file_management.v1.FileManagementServiceGenerateDownloadUrlRequest
-	(*FileManagementServiceGenerateDownloadUrlResponse)(nil), // 6: file_management.v1.FileManagementServiceGenerateDownloadUrlResponse
-	(v1.FileStatus)(0),            // 7: shared.v1.FileStatus
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*File)(nil),                   // 0: file_management.v1.File
+	(*FileStatusChangedEvent)(nil), // 1: file_management.v1.FileStatusChangedEvent
+	(*FileManagementServiceRequestUploadRequest)(nil),        // 2: file_management.v1.FileManagementServiceRequestUploadRequest
+	(*FileManagementServiceRequestUploadResponse)(nil),       // 3: file_management.v1.FileManagementServiceRequestUploadResponse
+	(*FileManagementServiceConfirmUploadRequest)(nil),        // 4: file_management.v1.FileManagementServiceConfirmUploadRequest
+	(*FileManagementServiceConfirmUploadResponse)(nil),       // 5: file_management.v1.FileManagementServiceConfirmUploadResponse
+	(*FileManagementServiceGenerateDownloadUrlRequest)(nil),  // 6: file_management.v1.FileManagementServiceGenerateDownloadUrlRequest
+	(*FileManagementServiceGenerateDownloadUrlResponse)(nil), // 7: file_management.v1.FileManagementServiceGenerateDownloadUrlResponse
+	(v1.FileStatus)(0),            // 8: shared.v1.FileStatus
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
 }
 var file_file_management_v1_file_management_proto_depIdxs = []int32{
-	7,  // 0: file_management.v1.File.status:type_name -> shared.v1.FileStatus
-	8,  // 1: file_management.v1.File.created_at:type_name -> google.protobuf.Timestamp
-	8,  // 2: file_management.v1.File.uploaded_at:type_name -> google.protobuf.Timestamp
-	8,  // 3: file_management.v1.File.deleted_at:type_name -> google.protobuf.Timestamp
-	8,  // 4: file_management.v1.FileManagementServiceRequestUploadResponse.expires_at:type_name -> google.protobuf.Timestamp
-	7,  // 5: file_management.v1.FileManagementServiceConfirmUploadRequest.status:type_name -> shared.v1.FileStatus
-	7,  // 6: file_management.v1.FileManagementServiceConfirmUploadResponse.status:type_name -> shared.v1.FileStatus
-	8,  // 7: file_management.v1.FileManagementServiceConfirmUploadResponse.expires_at:type_name -> google.protobuf.Timestamp
-	8,  // 8: file_management.v1.FileManagementServiceGenerateDownloadUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
-	1,  // 9: file_management.v1.FileManagementService.RequestUpload:input_type -> file_management.v1.FileManagementServiceRequestUploadRequest
-	3,  // 10: file_management.v1.FileManagementService.ConfirmUpload:input_type -> file_management.v1.FileManagementServiceConfirmUploadRequest
-	5,  // 11: file_management.v1.FileManagementService.GenerateDownloadUrl:input_type -> file_management.v1.FileManagementServiceGenerateDownloadUrlRequest
-	2,  // 12: file_management.v1.FileManagementService.RequestUpload:output_type -> file_management.v1.FileManagementServiceRequestUploadResponse
-	4,  // 13: file_management.v1.FileManagementService.ConfirmUpload:output_type -> file_management.v1.FileManagementServiceConfirmUploadResponse
-	6,  // 14: file_management.v1.FileManagementService.GenerateDownloadUrl:output_type -> file_management.v1.FileManagementServiceGenerateDownloadUrlResponse
-	12, // [12:15] is the sub-list for method output_type
-	9,  // [9:12] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	8,  // 0: file_management.v1.File.status:type_name -> shared.v1.FileStatus
+	9,  // 1: file_management.v1.File.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 2: file_management.v1.File.uploaded_at:type_name -> google.protobuf.Timestamp
+	9,  // 3: file_management.v1.File.deleted_at:type_name -> google.protobuf.Timestamp
+	8,  // 4: file_management.v1.FileStatusChangedEvent.status:type_name -> shared.v1.FileStatus
+	9,  // 5: file_management.v1.FileStatusChangedEvent.occurred_at:type_name -> google.protobuf.Timestamp
+	9,  // 6: file_management.v1.FileManagementServiceRequestUploadResponse.expires_at:type_name -> google.protobuf.Timestamp
+	8,  // 7: file_management.v1.FileManagementServiceConfirmUploadRequest.status:type_name -> shared.v1.FileStatus
+	8,  // 8: file_management.v1.FileManagementServiceConfirmUploadResponse.status:type_name -> shared.v1.FileStatus
+	9,  // 9: file_management.v1.FileManagementServiceConfirmUploadResponse.expires_at:type_name -> google.protobuf.Timestamp
+	9,  // 10: file_management.v1.FileManagementServiceGenerateDownloadUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
+	2,  // 11: file_management.v1.FileManagementService.RequestUpload:input_type -> file_management.v1.FileManagementServiceRequestUploadRequest
+	4,  // 12: file_management.v1.FileManagementService.ConfirmUpload:input_type -> file_management.v1.FileManagementServiceConfirmUploadRequest
+	6,  // 13: file_management.v1.FileManagementService.GenerateDownloadUrl:input_type -> file_management.v1.FileManagementServiceGenerateDownloadUrlRequest
+	3,  // 14: file_management.v1.FileManagementService.RequestUpload:output_type -> file_management.v1.FileManagementServiceRequestUploadResponse
+	5,  // 15: file_management.v1.FileManagementService.ConfirmUpload:output_type -> file_management.v1.FileManagementServiceConfirmUploadResponse
+	7,  // 16: file_management.v1.FileManagementService.GenerateDownloadUrl:output_type -> file_management.v1.FileManagementServiceGenerateDownloadUrlResponse
+	14, // [14:17] is the sub-list for method output_type
+	11, // [11:14] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_file_management_v1_file_management_proto_init() }
@@ -639,14 +744,14 @@ func file_file_management_v1_file_management_proto_init() {
 		return
 	}
 	file_file_management_v1_file_management_proto_msgTypes[0].OneofWrappers = []any{}
-	file_file_management_v1_file_management_proto_msgTypes[4].OneofWrappers = []any{}
+	file_file_management_v1_file_management_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_file_management_v1_file_management_proto_rawDesc), len(file_file_management_v1_file_management_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

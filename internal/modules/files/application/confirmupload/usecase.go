@@ -9,6 +9,7 @@ import (
 	fileerrors "github.com/zchelalo/neuraclinic-file-management/internal/modules/files/application/errors"
 	appshared "github.com/zchelalo/neuraclinic-file-management/internal/modules/files/application/shared"
 	"github.com/zchelalo/neuraclinic-file-management/internal/modules/files/ports"
+	"github.com/zchelalo/neuraclinic-file-management/internal/shared/appctx"
 )
 
 type Command struct {
@@ -24,14 +25,15 @@ type Result struct {
 }
 
 type UseCase struct {
-	cfg     appshared.Config
-	repo    ports.Repository
-	storage ports.Storage
-	runtime appshared.Runtime
+	cfg       appshared.Config
+	repo      ports.Repository
+	storage   ports.Storage
+	publisher ports.EventPublisher
+	runtime   appshared.Runtime
 }
 
-func New(cfg appshared.Config, repo ports.Repository, storage ports.Storage, runtime appshared.Runtime) *UseCase {
-	return &UseCase{cfg: cfg, repo: repo, storage: storage, runtime: runtime.Normalize()}
+func New(cfg appshared.Config, repo ports.Repository, storage ports.Storage, publisher ports.EventPublisher, runtime appshared.Runtime) *UseCase {
+	return &UseCase{cfg: cfg, repo: repo, storage: storage, publisher: publisher, runtime: runtime.Normalize()}
 }
 
 func (u *UseCase) Execute(ctx context.Context, cmd Command) (Result, error) {
@@ -64,6 +66,17 @@ func (u *UseCase) Execute(ctx context.Context, cmd Command) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
+	if err := u.publisher.PublishFileStatusChanged(ctx, ports.FileStatusChangedEvent{
+		EventID:       u.runtime.NewUUID(),
+		FileID:        updated.ID,
+		ServiceOrigin: updated.ServiceOrigin,
+		Status:        updated.Status,
+		OccurredAt:    updated.UpdatedAt,
+		RequestID:     appctx.RequestID(ctx),
+		TraceID:       appctx.TraceID(ctx),
+	}); err != nil {
+		return Result{}, err
+	}
 
 	result := Result{
 		ID:     updated.ID,
@@ -72,7 +85,7 @@ func (u *UseCase) Execute(ctx context.Context, cmd Command) (Result, error) {
 	if updated.Status == sharedv1.FileStatus_FILE_STATUS_AVAILABLE {
 		result.DownloadURL, result.ExpiresAt, err = u.storage.PresignDownload(ctx, updated.StoragePath, u.cfg.DownloadURLTTL)
 		if err != nil {
-			return Result{}, err
+			return result, nil
 		}
 	}
 

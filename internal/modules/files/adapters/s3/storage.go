@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -27,10 +26,9 @@ type Config struct {
 }
 
 type Storage struct {
-	bucket         string
-	publicEndpoint string
-	client         *s3.Client
-	presigner      *s3.PresignClient
+	bucket    string
+	client    *s3.Client
+	presigner *s3.PresignClient
 }
 
 func New(ctx context.Context, cfg Config) (*Storage, error) {
@@ -62,11 +60,18 @@ func New(ctx context.Context, cfg Config) (*Storage, error) {
 		}
 	})
 
+	presignClient := client
+	if cfg.PublicEndpoint != "" {
+		presignClient = s3.NewFromConfig(awsCfg, func(options *s3.Options) {
+			options.UsePathStyle = cfg.ForcePathStyle
+			options.BaseEndpoint = aws.String(cfg.PublicEndpoint)
+		})
+	}
+
 	return &Storage{
-		bucket:         cfg.Bucket,
-		publicEndpoint: cfg.PublicEndpoint,
-		client:         client,
-		presigner:      s3.NewPresignClient(client),
+		bucket:    cfg.Bucket,
+		client:    client,
+		presigner: s3.NewPresignClient(presignClient),
 	}, nil
 }
 
@@ -82,11 +87,7 @@ func (s *Storage) PresignUpload(ctx context.Context, key, contentType string, ex
 		return "", time.Time{}, fmt.Errorf("presign put object: %w", err)
 	}
 
-	presignedURL, err := rewriteEndpoint(result.URL, s.publicEndpoint)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-	return presignedURL, time.Now().UTC().Add(expires), nil
+	return result.URL, time.Now().UTC().Add(expires), nil
 }
 
 func (s *Storage) PresignDownload(ctx context.Context, key string, expires time.Duration) (string, time.Time, error) {
@@ -100,11 +101,7 @@ func (s *Storage) PresignDownload(ctx context.Context, key string, expires time.
 		return "", time.Time{}, fmt.Errorf("presign get object: %w", err)
 	}
 
-	presignedURL, err := rewriteEndpoint(result.URL, s.publicEndpoint)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-	return presignedURL, time.Now().UTC().Add(expires), nil
+	return result.URL, time.Now().UTC().Add(expires), nil
 }
 
 func (s *Storage) Exists(ctx context.Context, key string) (bool, error) {
@@ -130,28 +127,6 @@ func (s *Storage) Exists(ctx context.Context, key string) (bool, error) {
 	}
 
 	return false, fmt.Errorf("head object: %w", err)
-}
-
-func rewriteEndpoint(rawURL, publicEndpoint string) (string, error) {
-	if publicEndpoint == "" {
-		return rawURL, nil
-	}
-
-	parsedURL, err := url.Parse(rawURL)
-	if err != nil {
-		return "", fmt.Errorf("parse presigned url: %w", err)
-	}
-	parsedEndpoint, err := url.Parse(publicEndpoint)
-	if err != nil {
-		return "", fmt.Errorf("parse public endpoint: %w", err)
-	}
-	if parsedEndpoint.Scheme == "" || parsedEndpoint.Host == "" {
-		return "", fmt.Errorf("public endpoint must include scheme and host")
-	}
-
-	parsedURL.Scheme = parsedEndpoint.Scheme
-	parsedURL.Host = parsedEndpoint.Host
-	return parsedURL.String(), nil
 }
 
 var _ ports.Storage = (*Storage)(nil)

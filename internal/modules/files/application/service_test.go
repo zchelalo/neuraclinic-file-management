@@ -19,7 +19,7 @@ func TestRequestUploadCreatesMetadataAndPresignedURL(t *testing.T) {
 	now := time.Date(2026, 6, 23, 10, 30, 0, 0, time.UTC)
 	repo := newMemoryRepo()
 	storage := &fakeStorage{uploadURL: "http://storage/upload", uploadExpiresAt: now.Add(15 * time.Minute)}
-	service := newTestService(repo, storage, Runtime{
+	service := newTestService(repo, storage, &fakeEventPublisher{}, Runtime{
 		Now:     func() time.Time { return now },
 		NewUUID: func() uuid.UUID { return fileID },
 	})
@@ -60,13 +60,14 @@ func TestConfirmUploadRequiresObjectToExist(t *testing.T) {
 	fileID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
 	repo := newMemoryRepo()
 	repo.files[fileID] = ports.File{
-		ID:          fileID,
-		StoragePath: "record/file.pdf",
-		MimeType:    "application/pdf",
-		Status:      sharedv1.FileStatus_FILE_STATUS_UPLOADING,
+		ID:            fileID,
+		StoragePath:   "record/file.pdf",
+		MimeType:      "application/pdf",
+		ServiceOrigin: "record",
+		Status:        sharedv1.FileStatus_FILE_STATUS_UPLOADING,
 	}
 	storage := &fakeStorage{exists: false}
-	service := newTestService(repo, storage, Runtime{})
+	service := newTestService(repo, storage, &fakeEventPublisher{}, Runtime{})
 
 	_, err := service.ConfirmUpload(ctx, ConfirmUploadCommand{
 		ID:     fileID,
@@ -80,20 +81,26 @@ func TestConfirmUploadRequiresObjectToExist(t *testing.T) {
 func TestConfirmUploadReturnsDownloadURLWhenAvailable(t *testing.T) {
 	ctx := context.Background()
 	fileID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
+	eventID := uuid.MustParse("33333333-3333-3333-3333-333333333333")
 	now := time.Date(2026, 6, 23, 10, 30, 0, 0, time.UTC)
 	repo := newMemoryRepo()
 	repo.files[fileID] = ports.File{
-		ID:          fileID,
-		StoragePath: "record/file.pdf",
-		MimeType:    "application/pdf",
-		Status:      sharedv1.FileStatus_FILE_STATUS_UPLOADING,
+		ID:            fileID,
+		StoragePath:   "record/file.pdf",
+		MimeType:      "application/pdf",
+		ServiceOrigin: "record",
+		Status:        sharedv1.FileStatus_FILE_STATUS_UPLOADING,
 	}
 	storage := &fakeStorage{
 		exists:            true,
 		downloadURL:       "http://storage/download",
 		downloadExpiresAt: now.Add(10 * time.Minute),
 	}
-	service := newTestService(repo, storage, Runtime{Now: func() time.Time { return now }})
+	publisher := &fakeEventPublisher{}
+	service := newTestService(repo, storage, publisher, Runtime{
+		Now:     func() time.Time { return now },
+		NewUUID: func() uuid.UUID { return eventID },
+	})
 
 	result, err := service.ConfirmUpload(ctx, ConfirmUploadCommand{
 		ID:     fileID,
@@ -112,6 +119,53 @@ func TestConfirmUploadReturnsDownloadURLWhenAvailable(t *testing.T) {
 	if repo.files[fileID].UploadedAt == nil {
 		t.Fatal("expected uploaded_at to be set")
 	}
+	if publisher.lastEvent == nil {
+		t.Fatal("expected file status changed event to be published")
+	}
+	if publisher.lastEvent.EventID != eventID {
+		t.Fatalf("expected event id %s, got %s", eventID, publisher.lastEvent.EventID)
+	}
+	if publisher.lastEvent.FileID != fileID {
+		t.Fatalf("expected file id %s, got %s", fileID, publisher.lastEvent.FileID)
+	}
+	if publisher.lastEvent.ServiceOrigin != "record" {
+		t.Fatalf("expected service origin record, got %q", publisher.lastEvent.ServiceOrigin)
+	}
+	if publisher.lastEvent.Status != sharedv1.FileStatus_FILE_STATUS_AVAILABLE {
+		t.Fatalf("expected published status available, got %s", publisher.lastEvent.Status)
+	}
+}
+
+func TestConfirmUploadPublishesErrorStatusEvent(t *testing.T) {
+	ctx := context.Background()
+	fileID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
+	repo := newMemoryRepo()
+	repo.files[fileID] = ports.File{
+		ID:            fileID,
+		StoragePath:   "record/file.pdf",
+		ServiceOrigin: "record",
+		Status:        sharedv1.FileStatus_FILE_STATUS_UPLOADING,
+	}
+	publisher := &fakeEventPublisher{}
+	service := newTestService(repo, &fakeStorage{}, publisher, Runtime{})
+
+	result, err := service.ConfirmUpload(ctx, ConfirmUploadCommand{
+		ID:     fileID,
+		Status: sharedv1.FileStatus_FILE_STATUS_ERROR,
+	})
+	if err != nil {
+		t.Fatalf("ConfirmUpload returned error: %v", err)
+	}
+
+	if result.Status != sharedv1.FileStatus_FILE_STATUS_ERROR {
+		t.Fatalf("expected error status, got %s", result.Status)
+	}
+	if publisher.lastEvent == nil {
+		t.Fatal("expected file status changed event to be published")
+	}
+	if publisher.lastEvent.Status != sharedv1.FileStatus_FILE_STATUS_ERROR {
+		t.Fatalf("expected published status error, got %s", publisher.lastEvent.Status)
+	}
 }
 
 func TestGenerateDownloadURLRequiresAvailableFile(t *testing.T) {
@@ -123,7 +177,7 @@ func TestGenerateDownloadURLRequiresAvailableFile(t *testing.T) {
 		StoragePath: "record/file.pdf",
 		Status:      sharedv1.FileStatus_FILE_STATUS_UPLOADING,
 	}
-	service := newTestService(repo, &fakeStorage{}, Runtime{})
+	service := newTestService(repo, &fakeStorage{}, &fakeEventPublisher{}, Runtime{})
 
 	_, err := service.GenerateDownloadURL(ctx, fileID)
 	if !errors.Is(err, ErrFailedPrecondition) {
@@ -131,12 +185,12 @@ func TestGenerateDownloadURLRequiresAvailableFile(t *testing.T) {
 	}
 }
 
-func newTestService(repo ports.Repository, storage ports.Storage, runtime Runtime) *Service {
+func newTestService(repo ports.Repository, storage ports.Storage, publisher ports.EventPublisher, runtime Runtime) *Service {
 	return NewServiceWithRuntime(Config{
 		StorageProvider: "s3",
 		UploadURLTTL:    15 * time.Minute,
 		DownloadURLTTL:  10 * time.Minute,
-	}, repo, storage, runtime)
+	}, repo, storage, publisher, runtime)
 }
 
 type memoryRepo struct {
@@ -212,5 +266,19 @@ func (s *fakeStorage) Exists(_ context.Context, _ string) (bool, error) {
 	return s.exists, s.existsErr
 }
 
+type fakeEventPublisher struct {
+	lastEvent *ports.FileStatusChangedEvent
+}
+
+func (p *fakeEventPublisher) PublishFileStatusChanged(_ context.Context, event ports.FileStatusChangedEvent) error {
+	p.lastEvent = &event
+	return nil
+}
+
+func (p *fakeEventPublisher) Close() error {
+	return nil
+}
+
 var _ ports.Repository = (*memoryRepo)(nil)
 var _ ports.Storage = (*fakeStorage)(nil)
+var _ ports.EventPublisher = (*fakeEventPublisher)(nil)

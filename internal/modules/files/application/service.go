@@ -21,15 +21,15 @@ type Service struct {
 	generateDownloadURL *generatedownloadurl.UseCase
 }
 
-func NewService(cfg Config, repo ports.Repository, storage ports.Storage) *Service {
-	return NewServiceWithRuntime(cfg, repo, storage, appshared.DefaultRuntime())
+func NewService(cfg Config, repo ports.Repository, storage ports.Storage, publisher ports.EventPublisher) *Service {
+	return NewServiceWithRuntime(cfg, repo, storage, publisher, appshared.DefaultRuntime())
 }
 
-func NewServiceWithRuntime(cfg Config, repo ports.Repository, storage ports.Storage, runtime Runtime) *Service {
+func NewServiceWithRuntime(cfg Config, repo ports.Repository, storage ports.Storage, publisher ports.EventPublisher, runtime Runtime) *Service {
 	runtime = runtime.Normalize()
 	return &Service{
 		requestUpload:       requestupload.New(cfg, repo, storage, runtime),
-		confirmUpload:       confirmupload.New(cfg, repo, storage, runtime),
+		confirmUpload:       confirmupload.New(cfg, repo, storage, publisher, runtime),
 		generateDownloadURL: generatedownloadurl.New(cfg, repo, storage),
 	}
 }

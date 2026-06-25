@@ -41,6 +41,16 @@ type FileCreate struct {
 	Now             time.Time
 }
 
+type FileStatusChangedEvent struct {
+	EventID       uuid.UUID
+	FileID        uuid.UUID
+	ServiceOrigin string
+	Status        sharedv1.FileStatus
+	OccurredAt    time.Time
+	RequestID     string
+	TraceID       string
+}
+
 type Repository interface {
 	Create(ctx context.Context, file FileCreate) (File, error)
 	ByID(ctx context.Context, id uuid.UUID) (File, error)
@@ -51,4 +61,9 @@ type Storage interface {
 	PresignUpload(ctx context.Context, key, contentType string, expires time.Duration) (string, time.Time, error)
 	PresignDownload(ctx context.Context, key string, expires time.Duration) (string, time.Time, error)
 	Exists(ctx context.Context, key string) (bool, error)
+}
+
+type EventPublisher interface {
+	PublishFileStatusChanged(ctx context.Context, event FileStatusChangedEvent) error
+	Close() error
 }

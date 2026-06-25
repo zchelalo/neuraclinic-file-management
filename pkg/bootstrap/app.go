@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	eventspublisher "github.com/zchelalo/neuraclinic-file-management/internal/modules/files/adapters/events"
 	filesgrpc "github.com/zchelalo/neuraclinic-file-management/internal/modules/files/adapters/grpc"
 	filespg "github.com/zchelalo/neuraclinic-file-management/internal/modules/files/adapters/postgres"
 	s3storage "github.com/zchelalo/neuraclinic-file-management/internal/modules/files/adapters/s3"
@@ -37,12 +38,18 @@ func InitApp(ctx context.Context, logger *zap.Logger, cfg Config) (*App, error) 
 		return nil, fmt.Errorf("cannot initialize storage: %w", err)
 	}
 
+	publisher, err := eventspublisher.NewRabbitPublisher(cfg.RabbitMQURL, cfg.RabbitMQExchange)
+	if err != nil {
+		db.Close()
+		return nil, fmt.Errorf("cannot initialize rabbitmq publisher: %w", err)
+	}
+
 	repo := filespg.NewRepository(db)
 	filesApp := application.NewService(application.Config{
 		StorageProvider: cfg.StorageProvider,
 		UploadURLTTL:    cfg.StorageUploadURLTTL,
 		DownloadURLTTL:  cfg.StorageDownloadURLTTL,
-	}, repo, storage)
+	}, repo, storage, publisher)
 
 	server, err := grpcserver.New(grpcserver.Config{
 		Port:            cfg.Port,
@@ -51,6 +58,7 @@ func InitApp(ctx context.Context, logger *zap.Logger, cfg Config) (*App, error) 
 		TLSKeyFilePath:  cfg.GRPCTLSKeyPath,
 	}, logger, filesgrpc.NewServices(filesApp))
 	if err != nil {
+		_ = publisher.Close()
 		db.Close()
 		return nil, fmt.Errorf("cannot create grpc server: %w", err)
 	}
@@ -59,6 +67,7 @@ func InitApp(ctx context.Context, logger *zap.Logger, cfg Config) (*App, error) 
 		Server: server,
 		Cleanup: func(context.Context) error {
 			server.GracefulStop()
+			_ = publisher.Close()
 			db.Close()
 			return nil
 		},
