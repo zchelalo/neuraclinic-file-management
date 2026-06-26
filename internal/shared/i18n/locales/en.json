@@ -1,0 +1,9 @@
+{
+  "messages": {
+    "missing_credentials": "missing credentials",
+    "not_found": "not found",
+    "invalid_input": "invalid input",
+    "failed_precondition": "failed precondition",
+    "internal_server_error": "internal server error"
+  }
+}

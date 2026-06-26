@@ -11,7 +11,7 @@ import (
 func (s *FileManagementService) RequestUpload(ctx context.Context, req *filemanagementv1.FileManagementServiceRequestUploadRequest) (*filemanagementv1.FileManagementServiceRequestUploadResponse, error) {
 	uploadedBy, err := userID(ctx)
 	if err != nil {
-		return nil, mapError(err)
+		return nil, mapError(ctx, err)
 	}
 
 	result, err := s.app.RequestUpload(ctx, application.RequestUploadCommand{
@@ -23,7 +23,7 @@ func (s *FileManagementService) RequestUpload(ctx context.Context, req *filemana
 		ServiceOrigin: req.GetServiceOrigin(),
 	})
 	if err != nil {
-		return nil, mapError(err)
+		return nil, mapError(ctx, err)
 	}
 
 	return &filemanagementv1.FileManagementServiceRequestUploadResponse{
@@ -36,7 +36,7 @@ func (s *FileManagementService) RequestUpload(ctx context.Context, req *filemana
 func (s *FileManagementService) ConfirmUpload(ctx context.Context, req *filemanagementv1.FileManagementServiceConfirmUploadRequest) (*filemanagementv1.FileManagementServiceConfirmUploadResponse, error) {
 	id, err := parseID(req.GetId())
 	if err != nil {
-		return nil, mapError(err)
+		return nil, mapError(ctx, err)
 	}
 
 	result, err := s.app.ConfirmUpload(ctx, application.ConfirmUploadCommand{
@@ -44,7 +44,7 @@ func (s *FileManagementService) ConfirmUpload(ctx context.Context, req *filemana
 		Status: req.GetStatus(),
 	})
 	if err != nil {
-		return nil, mapError(err)
+		return nil, mapError(ctx, err)
 	}
 
 	response := &filemanagementv1.FileManagementServiceConfirmUploadResponse{
@@ -62,12 +62,12 @@ func (s *FileManagementService) ConfirmUpload(ctx context.Context, req *filemana
 func (s *FileManagementService) GenerateDownloadUrl(ctx context.Context, req *filemanagementv1.FileManagementServiceGenerateDownloadUrlRequest) (*filemanagementv1.FileManagementServiceGenerateDownloadUrlResponse, error) {
 	id, err := parseID(req.GetId())
 	if err != nil {
-		return nil, mapError(err)
+		return nil, mapError(ctx, err)
 	}
 
 	result, err := s.app.GenerateDownloadURL(ctx, id)
 	if err != nil {
-		return nil, mapError(err)
+		return nil, mapError(ctx, err)
 	}
 
 	return &filemanagementv1.FileManagementServiceGenerateDownloadUrlResponse{

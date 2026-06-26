@@ -1,0 +1,9 @@
+{
+  "messages": {
+    "missing_credentials": "faltan credenciales",
+    "not_found": "recurso no encontrado",
+    "invalid_input": "entrada invalida",
+    "failed_precondition": "precondicion fallida",
+    "internal_server_error": "error interno del servidor"
+  }
+}
